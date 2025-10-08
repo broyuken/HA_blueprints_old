@@ -1119,7 +1119,7 @@ actions:
                 Doorbell Event Name: {{ frigate_doorbell_event_name }}
                 Input Labels List: {{ input_labels }}
                 Event Name List: {{ [frigate_doorbell_event_name] }}
-                Template: {{ frigate_doorbell_event_name if zone_only else true}}
+                Combined List: {{ input_labels + [frigate_doorbell_event_name] }}
                 Labels Template:  {{ 'blank' if frigate_doorbell_event_name == '' else frigate_doorbell_event_name }} 
                 Camera: {{ frigate_doorbell_event_camera }}
           - action: frigate.create_event
