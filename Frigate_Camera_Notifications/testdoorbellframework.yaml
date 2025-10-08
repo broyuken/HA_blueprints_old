@@ -1,5 +1,5 @@
 blueprint:
-  name: Frigate Doorbell Test
+  name: Frigate Variable Test
   author: SgtBatten
   homeassistant:
     min_version: 2024.11.0
@@ -17,7 +17,7 @@ blueprint:
       selector:
         entity:
           filter:
-            integration: frigate
+            #integration: frigate
             domain: camera
           multiple: true
     notify_device:
