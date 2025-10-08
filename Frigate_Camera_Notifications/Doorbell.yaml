@@ -1107,7 +1107,7 @@ actions:
               duration: 2
               include_recording: true
             target:
-              entity_id: "{{camera}}"
+              entity_id: "camera.{{camera}}"
       - alias: "Custom Action Manual"
         conditions:
           - condition: trigger
