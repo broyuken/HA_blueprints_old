@@ -64,7 +64,6 @@ triggers:
     to: "on"
 variables:
   frigate_doorbell_event_name: !input frigate_doorbell_event_name
-  input_telegram_base_url: !input telegram_base_url
   input_labels: !input labels
   #labels: "{{ (input_labels + ([] if frigate_doorbell_event_name == '' else [frigate_doorbell_event_name] )) | list | lower }}"
   labels: "{{ input_labels | list | lower }}"
