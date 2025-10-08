@@ -1,5 +1,5 @@
 blueprint:
-  name: Frigate Notifications (0.14.0.2w)
+  name: Frigate Notifications broyuken edit
   author: SgtBatten
   homeassistant:
     min_version: 2024.11.0
@@ -85,14 +85,14 @@ blueprint:
       icon: mdi:doorbell-video
       collapsed: true
       input:
-        frigate-doorbell-event-name:
+        frigate_doorbell_event_name:
           name: Frigate Doorbell Event Name (Optional)
           description: |
             The name of the event you want created in Frigate when a doorbell press occurs
             e.g. visitor
             This name must be entered exactly the same in the object filter under the "Filters" heading
           default: ""
-        doorbell-pressed-entity:
+        doorbell_pressed_entity:
           name: Doorbell Pressed Entity
           description: |
             This is the entity that changes from off to on when the doorbell is pressed
@@ -968,10 +968,10 @@ triggers:
   - trigger: mqtt
     topic: "{{mqtt_topic}}"
     payload: "on"
-    value_template: "{{ 'on' if frigate-doorbell-event-name in value_json.after.data.objects else 'off'}}"
+    value_template: "{{ 'on' if frigate_doorbell_event_name in value_json.after.data.objects else 'off'}}"
     id: frigate-event
   - trigger: state
-    entity_id: !input doorbell-pressed-entity
+    entity_id: !input doorbell_pressed_entity
     id: doorbell-pressed
     from: "off"
     to: "on"
@@ -995,7 +995,7 @@ variables:
   type: "{{trigger.payload_json['type'] if trigger.id == 'frigate-event'}}"
   input_base_url: !input base_url
   base_url: "{{ input_base_url.rstrip('/')}}"
-  frigate-doorbell-event-name: !input frigate-doorbell-event-name
+  frigate_doorbell_event_name: !input frigate_doorbell_event_name
   input_telegram_base_url: !input telegram_base_url
   telegram_base_url: "{{ input_telegram_base_url.rstrip('/') if input_telegram_base_url else base_url }}"
   update_sub_label: !input update_sub_label
@@ -1015,7 +1015,7 @@ variables:
   zone_multi: !input zone_multi
   zone_order_enforced: !input zone_order_enforced
   input_labels: !input labels
-  labels: "{{ (input_labels + ([] if frigate-doorbell-event-name == '' else [frigate-doorbell-event-name] )) | list | lower }}"
+  labels: "{{ (input_labels + ([] if frigate_doorbell_event_name == '' else [frigate_doorbell_event_name] )) | list | lower }}"
   presence_entity: !input presence_filter
   disable_times: !input disable_times
   cooldown: !input cooldown
@@ -1102,7 +1102,7 @@ actions:
           - action: frigate.create_event
             metadata: {}
             data:
-              label: "{{frigate-doorbell-event-name}}"
+              label: "{{frigate_doorbell_event_name}}"
               duration: 2
               include_recording: true
             target:
