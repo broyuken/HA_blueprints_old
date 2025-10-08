@@ -1118,7 +1118,7 @@ actions:
                 Labels: {{ labels }}
                 Doorbell Event Name: {{ frigate_doorbell_event_name }}
                 Input Labels: {{ input_labels }}
-#Labels Template: {{ (input_labels + ([] if frigate_doorbell_event_name == '' else [frigate_doorbell_event_name] )) | list | lower }}
+                Labels Template:  (input_labels + ([] if frigate_doorbell_event_name == '' else [frigate_doorbell_event_name] )) | list | lower 
                 Labels Template (without list/lower): {{ input_labels + ([] if frigate_doorbell_event_name == '' else [frigate_doorbell_event_name] ) }}
                 Camera: {{ frigate_doorbell_event_camera }}
           - action: frigate.create_event
