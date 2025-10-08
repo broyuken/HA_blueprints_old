@@ -78,6 +78,27 @@ blueprint:
       name: Client ID (Optional-Advanced)
       description: Used to support multiple instances of Frigate. Leave blank if you don't know what to do.
       default: ""
+    doorbell:
+      name: |
+        # Doorbell Configuration
+      description: These are doorbell specific Options. If you select these options, this automation should ONLY be used for doorbell presses. Create another automation with this blueprint for motion notifications.
+      icon: mdi:doorbell-video
+      collapsed: true
+      input:
+        frigate-doorbell-event-name:
+          name: Frigate Doorbell Event Name (Optional)
+          description: |
+            The name of the event you want created in Frigate when a doorbell press occurs
+          default: "visitor"
+        doorbell-pressed-entity:
+          name: Doorbell Pressed Entity
+          description: |
+            This is the entity that changes from off to on when the doorbell is pressed
+          selector:
+            entity:
+              filter:
+                domain: input_boolean
+              multiple: true
     telegram:
       name: |
         # Telegram Configuration
@@ -133,6 +154,8 @@ blueprint:
                   value: "{{ label }}{{ ' was' if type == 'end' else '' }} detected on the {{ camera_name }} camera{{' in the ' if after_zones|length}}{{ after_zones | join(', ') | replace('_', ' ' ) | title }}."
                 - label: "Long with a timestamp HH:MM"
                   value: "{{ label }}{{ ' was' if type == 'end' else '' }} detected on the {{ camera_name }} camera{{' in the ' if after_zones|length}}{{ after_zones | join(', ') | replace('_', ' ' ) | title }} at {{event['after']['start_time']|timestamp_custom('%H:%M')}}."
+                - label: "Doorbell:   e.g., 🔔 Person was at the Front Door."
+                  value: "🔔 {{ label }}{{ ' was' if type == 'end' else 'is' }} at the {{ camera_name }}"  
               custom_value: true
         update_sub_label:
           name: Update Sub Labels (Advanced)
@@ -472,7 +495,7 @@ blueprint:
         labels:
           name: Object Filter (Optional)
           description: Specify objects you wish to be notified about. Enter or select one object at a time.
-          default: ""
+          default: "{{ '' if doorbell-pressed-entity == '' else frigate-doorbell-event-name }}"
           selector:
             select:
               options:
@@ -689,6 +712,10 @@ blueprint:
                   value: noAction
                 - label: Notification History (Android)
                   value: settings://notification_history
+                - label: View Stream (Frigate Ingress)
+                  value: /frigate?index=%23{{camera}}
+                - label: View Event (Frigate Ingress)
+                  value: /frigate?index=review?id={{review_id}}
               custom_value: true
         button_1:
           name: Action Button 1 Text
@@ -723,6 +750,10 @@ blueprint:
                   value: /ccab4aaf_frigate-proxy/dashboard
                 - label: Open Reolink App (Android)
                   value: app://com.mcu.reolink
+                - label: View Stream (Frigate Ingress)
+                  value: /frigate?index=%23{{camera}}
+                - label: View Event (Frigate Ingress)
+                  value: /frigate?index=review?id={{review_id}}
               custom_value: true
         icon_1:
           name: Action Button 1 icon - iOS Only
@@ -761,6 +792,10 @@ blueprint:
                   value: app://com.mcu.reolink
                 - label: Custom Action (Manual Trigger)
                   value: custom-{{ this.entity_id }}
+                - label: View Stream (Frigate Ingress)
+                  value: /frigate?index=%23{{camera}}
+                - label: View Event (Frigate Ingress)
+                  value: /frigate?index=review?id={{review_id}}
               custom_value: true
         icon_2:
           name: Action Button 2 icon - iOS Only
@@ -801,6 +836,10 @@ blueprint:
                   value: app://com.mcu.reolink
                 - label: Custom Action (Manual Trigger)
                   value: custom-{{ this.entity_id }}
+                - label: View Stream (Frigate Ingress)
+                  value: /frigate?index=%23{{camera}}
+                - label: View Event (Frigate Ingress)
+                  value: /frigate?index=review?id={{review_id}}
               custom_value: true
         icon_3:
           name: Action Button 3 icon - iOS Only
@@ -924,6 +963,16 @@ triggers:
     payload: "new"
     value_template: "{{value_json['type']}}"
     id: frigate-event
+  - trigger: mqtt
+    topic: "{{mqtt_topic}}"
+    payload: "on"
+    value_template: "{{ 'on' if frigate-doorbell-event-name in value_json.after.data.objects else 'off'}}"
+    id: frigate-event
+  - trigger: state
+    entity_id: "{{ doorbell-pressed-entity }}"
+    id: doorbell-pressed
+    from: "off"
+    to: "on"
   - trigger: event
     event_type: mobile_app_notification_action
     event_data:
@@ -944,6 +993,8 @@ variables:
   type: "{{trigger.payload_json['type'] if trigger.id == 'frigate-event'}}"
   input_base_url: !input base_url
   base_url: "{{ input_base_url.rstrip('/')}}"
+  frigate-doorbell-event-name: !input frigate-doorbell-event-name
+  doorbell-pressed-entity: !input doorbell-pressed-entity
   input_telegram_base_url: !input telegram_base_url
   telegram_base_url: "{{ input_telegram_base_url.rstrip('/') if input_telegram_base_url else base_url }}"
   update_sub_label: !input update_sub_label
@@ -1007,6 +1058,8 @@ conditions:
     - condition: trigger
       id: silence
     - condition: trigger
+      id: doorbell-pressed
+    - condition: trigger
       id: custom
     - condition: and
       conditions:
@@ -1040,6 +1093,19 @@ actions:
           - action: automation.turn_on
             target:
               entity_id: "{{ this.entity_id }}"
+      - alias: "Create Doorbell Pressed Event in Frigate"
+        conditions:
+          - condition: trigger
+            id: doorbell-pressed
+        sequence:
+          - action: frigate.create_event
+            metadata: {}
+            data:
+              label: {{frigate-doorbell-event-name}}
+              duration: 2
+              include_recording: true
+            target:
+              entity_id: {{camera}}
       - alias: "Custom Action Manual"
         conditions:
           - condition: trigger
