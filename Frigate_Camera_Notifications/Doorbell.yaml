@@ -1100,6 +1100,12 @@ actions:
           - condition: trigger
             id: doorbell-pressed
         sequence:
+          - action: persistent_notification.create
+            data:
+              message: |
+                Labels: {{ labels }}
+                Doorbell Event Name: {{ frigate_doorbell_event_name }}
+                Camera: {{ camera }}
           - action: frigate.create_event
             metadata: {}
             data:
