@@ -1027,8 +1027,8 @@ variables:
   zone_multi: !input zone_multi
   zone_order_enforced: !input zone_order_enforced
   input_labels: !input labels
-  #labels: "{{ input_labels | list | lower }}"
-  labels: "{{ (input_labels + ([] if frigate_doorbell_event_name == '' else [frigate_doorbell_event_name] )) | list | lower }}"
+  labels: "{{ input_labels | list | lower }}"
+  #labels: "{{ (input_labels + ([] if frigate_doorbell_event_name == '' else [frigate_doorbell_event_name] )) | list | lower }}"
   presence_entity: !input presence_filter
   disable_times: !input disable_times
   cooldown: !input cooldown
@@ -1117,6 +1117,9 @@ actions:
               message: |
                 Labels: {{ labels }}
                 Doorbell Event Name: {{ frigate_doorbell_event_name }}
+                Input Labels: {{ input_labels }}
+                Labels Template: {{ (input_labels + ([] if frigate_doorbell_event_name == '' else [frigate_doorbell_event_name] )) | list | lower }}
+                Labels Template (without list/lower): {{ input_labels + ([] if frigate_doorbell_event_name == '' else [frigate_doorbell_event_name] ) }}
                 Camera: {{ frigate_doorbell_event_camera }}
           - action: frigate.create_event
             metadata: {}
