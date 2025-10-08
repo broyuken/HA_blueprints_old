@@ -5,34 +5,8 @@ blueprint:
     min_version: 2024.11.0
   description: |
     ## Frigate Notifications
-
-    A highly customisable Notification template for Frigate Camera Notifications.
-
-    ### Software Version Requirements
-      - Minimum Home Assistant Version: 2024.10
-      - Minimum Frigate Version: 0.14.0
-      - Minimum Frigate Integration Version: 5.7.0
-        - **Note:** "Enable the unauthenticated notification event proxy" must be ticked during setup
-      - An MQTT broker connected to Home Assistant and Frigate.
-      - Minimum iOS Version: 15.0
-
-    ### Required Configuration Options:
-      - Frigate Cameras
-      - Mobile Device (Running HA Companion App)
-
-    ### Features:
-      - Easily select the camera entities or mobile device using a drop-down menu.
-      - Configure multiple cameras in one automation. 
-
-      For the full features list visit the [GitHub Repository][1]
-
-    [1]: https://github.com/SgtBatten/HA_blueprints/blob/main/Frigate_Camera_Notifications
-
-    ## Support
-    Go to https://github.com/SgtBatten/HA_blueprints to report bugs, request new features, or get support with your configuration.
-
   domain: automation
-  source_url: https://github.com/SgtBatten/HA_blueprints/blob/main/Frigate_Camera_Notifications/Beta.yaml
+  source_url: https://github.com/broyuken/HA_blueprints/blob/main/Frigate_Camera_Notifications/testdoorbellframework.yaml
   input:
     camera:
       name: Frigate Cameras
