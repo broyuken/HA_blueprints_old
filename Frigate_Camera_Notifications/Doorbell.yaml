@@ -959,7 +959,6 @@ mode: parallel
 trigger_variables:
   # severity: !input review_severity
   mqtt_topic: !input mqtt_topic
-  doorbell-pressed-entity: !input doorbell-pressed-entity
 triggers:
   - trigger: mqtt
     topic: "{{mqtt_topic}}"
@@ -972,7 +971,7 @@ triggers:
     value_template: "{{ 'on' if frigate-doorbell-event-name in value_json.after.data.objects else 'off'}}"
     id: frigate-event
   - trigger: state
-    entity_id: "{{ doorbell-pressed-entity }}"
+    entity_id: !input doorbell-pressed-entity
     id: doorbell-pressed
     from: "off"
     to: "on"
@@ -997,7 +996,6 @@ variables:
   input_base_url: !input base_url
   base_url: "{{ input_base_url.rstrip('/')}}"
   frigate-doorbell-event-name: !input frigate-doorbell-event-name
-  doorbell-pressed-entity: !input doorbell-pressed-entity
   input_telegram_base_url: !input telegram_base_url
   telegram_base_url: "{{ input_telegram_base_url.rstrip('/') if input_telegram_base_url else base_url }}"
   update_sub_label: !input update_sub_label
