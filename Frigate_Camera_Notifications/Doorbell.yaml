@@ -89,7 +89,8 @@ blueprint:
           name: Frigate Doorbell Event Name (Optional)
           description: |
             The name of the event you want created in Frigate when a doorbell press occurs
-          default: "visitor"
+            e.g. visitor
+          default: ""
         doorbell-pressed-entity:
           name: Doorbell Pressed Entity
           description: |
@@ -495,7 +496,7 @@ blueprint:
         labels:
           name: Object Filter (Optional)
           description: Specify objects you wish to be notified about. Enter or select one object at a time.
-          default: "{{ '' if doorbell-pressed-entity == '' else frigate-doorbell-event-name }}"
+          default: "{{frigate-doorbell-event-name}}"
           selector:
             select:
               options:
