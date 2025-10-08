@@ -1101,11 +1101,11 @@ actions:
           - action: frigate.create_event
             metadata: {}
             data:
-              label: {{frigate-doorbell-event-name}}
+              label: "{{frigate-doorbell-event-name}}"
               duration: 2
               include_recording: true
             target:
-              entity_id: {{camera}}
+              entity_id: "{{camera}}"
       - alias: "Custom Action Manual"
         conditions:
           - condition: trigger
