@@ -54,8 +54,6 @@ blueprint:
               multiple: true
               custom_value: true
 mode: parallel
-trigger_variables:
-  # severity: !input review_severity
 triggers:
   - trigger: state
     entity_id: !input doorbell_pressed_entity
