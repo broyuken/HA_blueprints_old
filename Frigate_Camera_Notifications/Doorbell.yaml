@@ -497,7 +497,7 @@ blueprint:
         labels:
           name: Object Filter (Optional)
           description: Specify objects you wish to be notified about. Enter or select one object at a time.
-          default: {{frigate-doorbell-event-name}}
+          default: ""
           selector:
             select:
               options:
