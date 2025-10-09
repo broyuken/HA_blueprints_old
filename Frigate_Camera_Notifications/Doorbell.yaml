@@ -980,7 +980,7 @@ triggers:
   - trigger: mqtt
     topic: "{{mqtt_topic}}"
     payload: "on"
-    value_template: "{{ 'on' if frigate_doorbell_event_name in value_json.after.data.objects else 'off'}}"
+    value_template: {{ 'on' if frigate_doorbell_event_name in value_json.after.data.objects | map(attribute='label') | list else 'off' }}
     id: frigate-event
   - trigger: state
     entity_id: !input doorbell_pressed_entity
