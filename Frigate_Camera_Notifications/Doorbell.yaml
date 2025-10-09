@@ -970,6 +970,7 @@ mode: parallel
 trigger_variables:
   # severity: !input review_severity
   mqtt_topic: !input mqtt_topic
+  frigate_doorbell_event_name: !input frigate_doorbell_event_name
 triggers:
   - trigger: mqtt
     topic: "{{mqtt_topic}}"
