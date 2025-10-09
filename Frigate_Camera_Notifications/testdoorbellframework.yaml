@@ -78,6 +78,6 @@ actions:
     data:
       message: |
         Doorbell Event Name: {{ frigate_doorbell_event_name }}
-        objects: {{ trigger.payload_json.after.data.objects }}
-        value_template: {{ 'on' if frigate_doorbell_event_name in trigger.payload_json.after.data.objects else 'off' }}
+        objects: {{ trigger.payload.after.data.objects }}
+        value_template: {{ 'on' if frigate_doorbell_event_name in trigger.payload.after.data.objects else 'off' }}
         
