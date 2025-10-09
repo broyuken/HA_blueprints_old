@@ -54,8 +54,6 @@ blueprint:
               multiple: true
               custom_value: true
 mode: parallel
-trigger_variables:
-  frigate_doorbell_event_name: !input frigate_doorbell_event_name
 triggers:
   - trigger: mqtt
     topic: frigate/reviews
@@ -69,7 +67,8 @@ triggers:
     topic: frigate/reviews
     payload: "on"
     value_template: >
-      {{ 'on' if (!input frigate_doorbell_event_name) in value_json.after.data.objects else 'off' }}
+      {% set frigate_doorbell_event_name = !input frigate_doorbell_event_name %}
+      {{ 'on' if frigate_doorbell_event_name in value_json.after.data.objects else 'off' }}
     id: frigate-event
   - trigger: state
     entity_id: !input doorbell_pressed_entity
