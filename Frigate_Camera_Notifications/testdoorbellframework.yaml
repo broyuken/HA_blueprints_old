@@ -56,11 +56,11 @@ blueprint:
 mode: parallel
 triggers:
   - trigger: mqtt
-    topic: "{{mqtt_topic}}"
+    topic: frigate/reviews
     payload: "new"
     value_template: "{{value_json['type']}}"
   - trigger: mqtt
-    topic: "{{mqtt_topic}}"
+    topic: frigate/reviews
     payload: "update"
     value_template: "{{value_json['type']}}"
   - trigger: mqtt
