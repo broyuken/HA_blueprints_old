@@ -59,18 +59,9 @@ trigger_variables:
 triggers:
   - trigger: mqtt
     topic: frigate/reviews
-    payload: "new"
-    value_template: "{{value_json['type']}}"
-  - trigger: mqtt
-    topic: frigate/reviews
-    payload: "update"
-    value_template: "{{value_json['type']}}"
-  - trigger: mqtt
-    topic: frigate/reviews
     payload: "on"
     value_template: >
-      {% set frigate_doorbell_event_name = frigate_doorbell_event_name %}
-      {{ 'on' if frigate_doorbell_event_name in value_json.after.data.objects else 'off' }}
+      {{ 'on' if frigate_doorbell_event_name in value.after.data.objects else 'off' }}
     id: frigate-event
   - trigger: state
     entity_id: !input doorbell_pressed_entity
