@@ -373,7 +373,7 @@ blueprint:
         group:
           name: Group
           description: The group name that will determine if notifications are grouped on your mobile device. If you want notifications grouped by camera, ensure it contains {{camera}}
-          default: "{{camera}}-frigate-notification"
+          default: "{{camera}}-frigate-doorbell-notification"
         sound:
           name: Notification Sound - iOS only (Optional)
           description: You can specify a sound file on your device that will play for the notifications. You will need to import the sound file into Home Assistant.
