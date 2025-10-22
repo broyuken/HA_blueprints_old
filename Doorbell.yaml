@@ -1091,12 +1091,7 @@ actions:
             data:
               message: |
                 Labels: {{ labels }}
-                Doorbell Event Name: {{ doorbell_frigate_event_name }}
-                Input Labels List: {{ input_labels }}
                 Event Name List: {{ [doorbell_frigate_event_name] }}
-                Event Name List Clean: {{ [] if doorbell_frigate_event_name == '' else [doorbell_frigate_event_name] }}
-                Combined List: {{ (input_labels + ([] if doorbell_frigate_event_name == '' else [doorbell_frigate_event_name])) | list | lower }}
-                Labels Template:  {{ 'blank' if doorbell_frigate_event_name == '' else doorbell_frigate_event_name }} 
                 Camera: {{ input_camera }}
           - action: frigate.create_event
             metadata: {}
