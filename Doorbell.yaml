@@ -134,12 +134,12 @@ blueprint:
             You can use variables such as {{camera_name}} and {{label}}
             e.g., A {{ label }} {{ ' was' if type == 'end' else '' }} detected on the {{ camera_name }} camera.
 
-          default: "A {{ label }} {{ 'was detected' }} on the {{ camera_name }} camera."
+          default:  "🔔 {{ label }}{{ ' was' if type == 'end' else ' is' }} at the {{ camera_name }}"
           selector:
             select:
               options:
-                - label: "Default:   e.g., A Person was detected on the Side camera."
-                  value: "A {{ label }} {{ 'was detected' }} on the {{ camera_name }} camera."
+                - label: "Default:   e.g., 🔔 Person was at the Front Door."
+                  value: "🔔 {{ label }}{{ ' was' if type == 'end' else ' is' }} at the {{ camera_name }}"  
                 - label: "Short:     e.g., Person detected - Side"
                   value: "{{ label }} detected - {{ camera_name }}"
                 - label: "Short with a timestamp HH:MM"
@@ -484,22 +484,22 @@ blueprint:
           default: false
           selector:
             boolean:
-        labels:
-          name: Object Filter (Optional)
-          description: Specify objects you wish to be notified about. Enter or select one object at a time.
-          default: "visitor"
-          selector:
-            select:
-              options:
-                - visitor
-                - person
-                - dog
-                - cat
-                - car
-                - package
-                - bird
-              multiple: true
-              custom_value: true
+#        labels:
+#          name: Object Filter (Optional)
+#          description: Specify objects you wish to be notified about. Enter or select one object at a time.
+#          default: "visitor"
+#          selector:
+#            select:
+#              options:
+#                - visitor
+#                - person
+#                - dog
+#                - cat
+#                - car
+#                - package
+#                - bird
+#              multiple: true
+#              custom_value: true
         presence_filter:
           name: Presence Filter (Optional)
           description: Only notify if ALL of the selected presence entities are not "home".
@@ -950,11 +950,12 @@ mode: parallel
 trigger_variables:
   # severity: !input review_severity
   mqtt_topic: !input mqtt_topic
+  doorbell_frigate_event_name: !input doorbell_frigate_event_name
 triggers:
   - trigger: mqtt
     topic: "{{mqtt_topic}}"
-    payload: "new"
-    value_template: "{{value_json['type']}}"
+    payload: "{{doorbell_frigate_event_name}}"
+    value_template: "{{value_json['after']['data']['objects']}}"
     id: frigate-event
   - trigger: state
     entity_id: !input doorbell_event_entity
@@ -1000,9 +1001,9 @@ variables:
   zones: "{{ input_zones }}"
   zone_multi: !input zone_multi
   zone_order_enforced: !input zone_order_enforced
-  input_labels: !input labels
+#  input_labels: !input labels
   #labels: "{{ input_labels | list | lower }}"
-  labels: "{{ (input_labels + ([] if doorbell_frigate_event_name == '' else [doorbell_frigate_event_name] )) | list | lower }}"
+  labels: "{{ [doorbell_frigate_event_name] | list | lower }}"
   presence_entity: !input presence_filter
   disable_times: !input disable_times
   cooldown: !input cooldown
@@ -1097,14 +1098,14 @@ actions:
                 Combined List: {{ (input_labels + ([] if doorbell_frigate_event_name == '' else [doorbell_frigate_event_name])) | list | lower }}
                 Labels Template:  {{ 'blank' if doorbell_frigate_event_name == '' else doorbell_frigate_event_name }} 
                 Camera: {{ input_camera }}
-#          - action: frigate.create_event
-#            metadata: {}
-#            data:
-#              label: "{{doorbell_frigate_event_name}}"
-#              duration: 2
-#              include_recording: true
-#            target:
-#              entity_id: "{{input_camera}}"
+          - action: frigate.create_event
+            metadata: {}
+            data:
+              label: "{{doorbell_frigate_event_name}}"
+              duration: 2
+              include_recording: true
+            target:
+              entity_id: "{{input_camera}}"
       - alias: "Custom Action Manual"
         conditions:
           - condition: trigger
