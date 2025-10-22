@@ -484,22 +484,6 @@ blueprint:
           default: false
           selector:
             boolean:
-#        labels:
-#          name: Object Filter (Optional)
-#          description: Specify objects you wish to be notified about. Enter or select one object at a time.
-#          default: "visitor"
-#          selector:
-#            select:
-#              options:
-#                - visitor
-#                - person
-#                - dog
-#                - cat
-#                - car
-#                - package
-#                - bird
-#              multiple: true
-#              custom_value: true
         presence_filter:
           name: Presence Filter (Optional)
           description: Only notify if ALL of the selected presence entities are not "home".
@@ -1001,8 +985,6 @@ variables:
   zones: "{{ input_zones }}"
   zone_multi: !input zone_multi
   zone_order_enforced: !input zone_order_enforced
-#  input_labels: !input labels
-  #labels: "{{ input_labels | list | lower }}"
   labels: "{{ [doorbell_frigate_event_name] | list | lower }}"
   presence_entity: !input presence_filter
   disable_times: !input disable_times
