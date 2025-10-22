@@ -1,6 +1,6 @@
 blueprint:
-  name: Frigate Notifications (0.14.1)
-  author: SgtBatten
+  name: Frigate Doorbell Notifications (0.14.1)
+  author: broyuken/SgtBatten
   homeassistant:
     min_version: 2024.11.0
   description: |
@@ -18,11 +18,11 @@ blueprint:
 
     ### Required Configuration Options:
       - Frigate Cameras
+      - Doorbell Press Entity
       - Mobile Device (Running HA Companion App)
 
     ### Features:
       - Easily select the camera entities or mobile device using a drop-down menu.
-      - Configure multiple cameras in one automation. 
 
       For the full features list visit the [GitHub Repository][1]
 
@@ -32,20 +32,19 @@ blueprint:
     Go to https://github.com/SgtBatten/HA_blueprints to report bugs, request new features, or get support with your configuration.
 
   domain: automation
-  source_url: https://github.com/SgtBatten/HA_blueprints/blob/main/Frigate_Camera_Notifications/Beta.yaml
+  source_url: https://github.com/SgtBatten/HA_blueprints/blob/main/Frigate_Camera_Notifications/Doorbell.yaml
   input:
     camera:
-      name: Frigate Cameras
+      name: Frigate Doorbell
       description: |
-        Select the cameras that will trigger notifications. 
+        Select the doorbell that will trigger notifications. 
         If you do not see cameras listed in the drop-down, check you have the Frigate integration installed.
-        To more effectively customise the notifications you may need to create one automation per camera.
       selector:
         entity:
           filter:
             integration: frigate
             domain: camera
-          multiple: true
+          multiple: false
     doorbell_frigate_event_name:
       name: Frigate Doorbell Event Name
       description: |
@@ -1002,7 +1001,8 @@ variables:
   zone_multi: !input zone_multi
   zone_order_enforced: !input zone_order_enforced
   input_labels: !input labels
-  labels: "{{ input_labels | list | lower }}"
+  #labels: "{{ input_labels | list | lower }}"
+  labels: "{{ (input_labels + ([] if doorbell_frigate_event_name == '' else [doorbell_frigate_event_name] )) | list | lower }}"
   presence_entity: !input presence_filter
   disable_times: !input disable_times
   cooldown: !input cooldown
@@ -1094,17 +1094,17 @@ actions:
                 Input Labels List: {{ input_labels }}
                 Event Name List: {{ [doorbell_frigate_event_name] }}
                 Event Name List Clean: {{ [] if doorbell_frigate_event_name == '' else [doorbell_frigate_event_name] }}
-                Combined List: {{ (input_labels + ([] if frigate_doorbell_event_name == '' else [doorbell_frigate_event_name])) | list | lower }}
+                Combined List: {{ (input_labels + ([] if doorbell_frigate_event_name == '' else [doorbell_frigate_event_name])) | list | lower }}
                 Labels Template:  {{ 'blank' if doorbell_frigate_event_name == '' else doorbell_frigate_event_name }} 
                 Camera: {{ input_camera }}
-          - action: frigate.create_event
-            metadata: {}
-            data:
-              label: "{{doorbell_frigate_event_name}}"
-              duration: 2
-              include_recording: true
-            target:
-              entity_id: "{{input_camera}}"
+#          - action: frigate.create_event
+#            metadata: {}
+#            data:
+#              label: "{{doorbell_frigate_event_name}}"
+#              duration: 2
+#              include_recording: true
+#            target:
+#              entity_id: "{{input_camera}}"
       - alias: "Custom Action Manual"
         conditions:
           - condition: trigger
