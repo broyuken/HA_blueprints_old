@@ -1261,7 +1261,6 @@ actions:
                               Entered Zones: {{after_zones}},
                               TEST: {{'PASS' if zones_satisfied else 'FAIL' }} {{'(Multi)' if zone_only and zone_multi}} {{'(Order-Enforced)' if zone_only and zone_multi and zone_order_enforced}}, 
                             Required objects: 
-                              Input: {{input_labels}}, 
                               TEST: {{'PASS' if objects_satisfied else 'FAIL'}} - {{objects}}
                             presence entity (not home):
                               Entity: {{presence_entity}}
@@ -1667,7 +1666,6 @@ actions:
                                       New Zones: {{ after_zones | list | length }} - {{after_zones}},
                                       TEST: {{'PASS' if zones_satisfied else 'FAIL' }} {{'(Multi)' if zone_only and zone_multi}} {{'(Order-Enforced)' if zone_only and zone_multi and zone_order_enforced}},
                                     Object Filter:
-                                      Input: {{input_labels}},
                                       TEST: {{'PASS' if objects_satisfied else 'FAIL'}} - {{objects}},
                                     Presence entity (not home):
                                       Entity: {{presence_entity}},
