@@ -934,7 +934,6 @@ mode: parallel
 trigger_variables:
   # severity: !input review_severity
   mqtt_topic: !input mqtt_topic
-  labels: "{{ [doorbell_frigate_event_name] | list | lower }}"
 triggers:
   - trigger: mqtt
     topic: "{{mqtt_topic}}"
@@ -985,7 +984,7 @@ variables:
   zones: "{{ input_zones }}"
   zone_multi: !input zone_multi
   zone_order_enforced: !input zone_order_enforced
-  labels: "{{ [doorbell_frigate_event_name] }}"
+  labels: "{{ doorbell_frigate_event_name }}"
   presence_entity: !input presence_filter
   disable_times: !input disable_times
   cooldown: !input cooldown
