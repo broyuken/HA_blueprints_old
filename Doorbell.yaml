@@ -934,11 +934,11 @@ mode: parallel
 trigger_variables:
   # severity: !input review_severity
   mqtt_topic: !input mqtt_topic
-  doorbell_frigate_event_name: !input doorbell_frigate_event_name
+  labels: "{{ [doorbell_frigate_event_name] | list | lower }}"
 triggers:
   - trigger: mqtt
     topic: "{{mqtt_topic}}"
-    payload: "{{doorbell_frigate_event_name}}"
+    payload: "{{labels}}"
     value_template: "{{value_json['after']['data']['objects']}}"
     id: frigate-event
   - trigger: state
