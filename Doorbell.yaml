@@ -1073,12 +1073,6 @@ actions:
           - condition: trigger
             id: doorbell-event
         sequence:
-          - action: persistent_notification.create
-            data:
-              message: |
-                Labels: {{ labels }}
-                Event Name List: {{ [doorbell_frigate_event_name] }}
-                Camera: {{ input_camera }}
           - action: frigate.create_event
             metadata: {}
             data:
