@@ -584,15 +584,6 @@ blueprint:
       icon: mdi:gesture-double-tap
       collapsed: true
       input:
-        cooldown:
-          name: Cooldown (Optional)
-          description: Delay before sending another notification for this camera after the last event.
-          default: 0
-          selector:
-            number:
-              max: 86400
-              min: 0
-              unit_of_measurement: seconds
         timeout:
           name: Timeout
           description: Length of time the automation will wait for MQTT updates.
@@ -988,7 +979,6 @@ variables:
   labels: '{{ [doorbell_frigate_event_name] | list | lower }}'
   presence_entity: !input presence_filter
   disable_times: !input disable_times
-  cooldown: !input cooldown
   timeout: !input timeout
   loitering: false
   loiter_timer: !input loiter_timer
@@ -1041,9 +1031,6 @@ conditions:
           value_template: "{{ input_camera_name|select('equalto', camera)|list|length>0 }}"
         - alias: Master Condition
           condition: !input master_condition
-        - alias: Cooldown
-          condition: template
-          value_template: "{{ not this.attributes.last_triggered or (now() - this.attributes.last_triggered).seconds > cooldown }}"
         - alias: Disable Times
           condition: template
           value_template: "{{ not disable_times|length or not now().hour in disable_times|map('int')|list }}"
@@ -1202,7 +1189,6 @@ actions:
                             Video: {{video if not redacted or not base_url else video |replace(base_url, 'REDACTED')}}, 
                             iOS URL: {{(video if not redacted or not base_url else video |replace(base_url, 'REDACTED')) if video|length >0 else attachment if not redacted or not base_url else attachment |replace(base_url, 'REDACTED')}}
                             Target: {{'group (input/formatted): ' + notify_group + '/' + notify_group_target + ', ' if notify_group else 'Mobile Device'}}, 
-                            Cooldown: {{cooldown}}s, 
                             Initial Delay: {{initial_delay}}s, 
                             Color: {{color}}, 
                             Sound: {{sound}}, 
