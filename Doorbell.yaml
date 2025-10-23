@@ -932,12 +932,13 @@ blueprint:
             boolean:
 mode: parallel
 trigger_variables:
-  # severity: !input review_severity
   mqtt_topic: !input mqtt_topic
+  doorbell_frigate_event_name: !input doorbell_frigate_event_name
+  labels_string: "{{ [doorbell_frigate_event_name] | string | lower }}"
 triggers:
   - trigger: mqtt
     topic: "{{mqtt_topic}}"
-    payload: "{{labels}}"
+    payload: "{{labels_string}}"
     value_template: "{{value_json['after']['data']['objects']}}"
     id: frigate-event
   - trigger: state
@@ -1046,6 +1047,10 @@ conditions:
         - alias: Disable Times
           condition: template
           value_template: "{{ not disable_times|length or not now().hour in disable_times|map('int')|list }}"
+        - alias: Not Triggered by End
+          condition: template
+          value_template: 
+            "{{ not (trigger.payload_json['type'] == 'end') }}"
 actions:
   - choose:
       - alias: "Silence New Object Notifications"
