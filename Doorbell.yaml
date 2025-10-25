@@ -930,7 +930,7 @@ triggers:
   - trigger: mqtt
     topic: "{{mqtt_topic}}"
     payload: "{{labels_string}}"
-    value_template: "{{value_json['after']['data']['objects']}}"
+    value_template: "{{ value_json['after']['data']['objects'] }}"
     id: frigate-event
   - trigger: state
     entity_id: !input doorbell_event_entity
