@@ -924,13 +924,16 @@ blueprint:
 mode: parallel
 trigger_variables:
   mqtt_topic: !input mqtt_topic
-  doorbell_frigate_event_name: !input doorbell_frigate_event_name
-  labels_string: "{{ [doorbell_frigate_event_name] | string | lower }}"
 triggers:
   - trigger: mqtt
     topic: "{{mqtt_topic}}"
-    payload: "{{labels_string}}"
-    value_template: "{{ value_json['after']['data']['objects'] }}"
+    payload: "new"
+    value_template: "{{value_json['type']}}"
+    id: frigate-event
+  - trigger: mqtt
+    topic: "{{mqtt_topic}}"
+    payload: "update"
+    value_template: "{{value_json['type']}}"
     id: frigate-event
   - trigger: state
     entity_id: !input doorbell_event_entity
@@ -1029,6 +1032,9 @@ conditions:
         - alias: Camera Match
           condition: template
           value_template: "{{ input_camera_name|select('equalto', camera)|list|length>0 }}"
+        - alias: Doorbell Event Name Match
+          condition: template
+          value_template: '{{ doorbell_frigate_event_name in value_json.after.data.objects }}'
         - alias: Master Condition
           condition: !input master_condition
         - alias: Disable Times
