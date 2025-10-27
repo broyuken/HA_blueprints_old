@@ -1034,7 +1034,7 @@ conditions:
           value_template: "{{ input_camera_name|select('equalto', camera)|list|length>0 }}"
         - alias: Doorbell Event Name Match
           condition: template
-          value_template: '{{ doorbell_frigate_event_name in value_json.after.data.objects }}'
+          value_template: '{{ doorbell_frigate_event_name in trigger.payload_json["after"]["data"]["objects"] }}'
         - alias: Master Condition
           condition: !input master_condition
         - alias: Disable Times
