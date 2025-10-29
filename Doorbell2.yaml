@@ -78,6 +78,39 @@ blueprint:
       name: Client ID (Optional-Advanced)
       description: Used to support multiple instances of Frigate. Leave blank if you don't know what to do.
       default: ""
+    doorbell:
+      name: |
+        # Doorbell Configuration
+      description: These are Doorbell specific Options.
+      icon: mdi:mdi:doorbell-video
+      collapsed: true
+      input:
+        doorbell_frigate_event_name:
+          name: Frigate Doorbell Event Name
+          description: |
+            The name of the event you want created in Frigate when a doorbell press occurs
+            e.g. visitor
+          default: "visitor"
+        doorbell_event_entity:
+          name: Doorbell Event Entity
+          description: |
+            This is the entity that triggers a doorbell press event
+          selector:
+            entity:
+              filter:
+                domain: binary_sensor
+              multiple: false
+        doorbell_camera:
+          name: Frigate Doorbell Camera
+          description: |
+            Select the camera that the event will be created on. 
+            If you do not see cameras listed in the drop-down, check you have the Frigate integration installed.
+          selector:
+            entity:
+              filter:
+                integration: frigate
+                domain: camera
+              multiple: false
     telegram:
       name: |
         # Telegram Configuration
@@ -112,7 +145,7 @@ blueprint:
           name: Notification Title (Optional)
           description: The title of the notification.
           default: ""
-        message:
+        detection_message:
           name: Notification Message
           description: |
             The message of the notification.
@@ -125,6 +158,28 @@ blueprint:
               options:
                 - label: "Default:   e.g., A Person was detected on the Side camera."
                   value: "A {{ label }} {{ 'was detected' }} on the {{ camera_name }} camera."
+                - label: "Short:     e.g., Person detected - Side"
+                  value: "{{ label }} detected - {{ camera_name }}"
+                - label: "Short with a timestamp HH:MM"
+                  value: "{{ label }} detected - {{ camera_name }} at {{event['after']['start_time']|timestamp_custom('%H:%M')}}"
+                - label: "Long:      e.g., A Person was detected on the Side camera in the driveway."
+                  value: "{{ label }}{{ ' was' if type == 'end' else '' }} detected on the {{ camera_name }} camera{{' in the ' if after_zones|length}}{{ after_zones | join(', ') | replace('_', ' ' ) | title }}."
+                - label: "Long with a timestamp HH:MM"
+                  value: "{{ label }}{{ ' was' if type == 'end' else '' }} detected on the {{ camera_name }} camera{{' in the ' if after_zones|length}}{{ after_zones | join(', ') | replace('_', ' ' ) | title }} at {{event['after']['start_time']|timestamp_custom('%H:%M')}}."
+              custom_value: true
+        doorbell_message:
+          name: Doorbell Notification Message
+          description: |
+            The message of the doorbell notification.
+            You can use variables such as {{camera_name}} and {{label}}
+            e.g., A {{ label }} {{ ' was' if type == 'end' else '' }} detected on the {{ camera_name }} camera.
+
+          default:  "🔔 {{ label }}{{ ' was' if type == 'end' else ' is' }} at the {{ camera_name }}"
+          selector:
+            select:
+              options:
+                - label: "Default:   e.g., 🔔 Person was at the Front Door."
+                  value: "🔔 {{ label }}{{ ' was' if type == 'end' else ' is' }} at the {{ camera_name }}"  
                 - label: "Short:     e.g., Person detected - Side"
                   value: "{{ label }} detected - {{ camera_name }}"
                 - label: "Short with a timestamp HH:MM"
@@ -940,6 +995,11 @@ triggers:
     payload: "new"
     value_template: "{{value_json['type']}}"
     id: frigate-event
+  - trigger: state
+    entity_id: !input doorbell_event_entity
+    id: doorbell-event
+    from: "off"
+    to: "on"
   - trigger: event
     event_type: mobile_app_notification_action
     event_data:
@@ -955,6 +1015,8 @@ variables:
   input_camera_name: "{{input_camera|expand|map(attribute='attributes.camera_name', default='none')|list}}"
   camera: "{{trigger.payload_json['after']['camera'] if trigger.id == 'frigate-event'}}"
   camera_name: "{{ camera | replace('_', ' ') | title }}"
+  doorbell_frigate_event_name: !input doorbell_frigate_event_name
+  doorbell_camera: !input doorbell_camera
   input_severity: !input review_severity
   severity: "{{trigger.payload_json['after']['severity'] if trigger.id == 'frigate-event'}}"
   type: "{{trigger.payload_json['type'] if trigger.id == 'frigate-event'}}"
@@ -979,7 +1041,8 @@ variables:
   zone_multi: !input zone_multi
   zone_order_enforced: !input zone_order_enforced
   input_labels: !input labels
-  labels: "{{ input_labels | list | lower }}"
+  #labels: "{{ input_labels | list | lower }}"
+  labels: "{{ (input_labels + ([] if doorbell_frigate_event_name == '' else [doorbell_frigate_event_name] )) | list | lower }}"
   presence_entity: !input presence_filter
   disable_times: !input disable_times
   cooldown: !input cooldown
@@ -1031,6 +1094,9 @@ conditions:
         - alias: Camera Match
           condition: template
           value_template: "{{ input_camera_name|select('equalto', camera)|list|length>0 }}"
+        - alias: Doorbell Event Name Match
+          condition: template
+          value_template: '{{ doorbell_frigate_event_name in trigger.payload_json["after"]["data"]["objects"] }}'
         - alias: Master Condition
           condition: !input master_condition
         - alias: Cooldown
@@ -1056,6 +1122,19 @@ actions:
           - action: automation.turn_on
             target:
               entity_id: "{{ this.entity_id }}"
+      - alias: "Create Doorbell Pressed Event in Frigate"
+        conditions:
+          - condition: trigger
+            id: doorbell-event
+        sequence:
+          - action: frigate.create_event
+            metadata: {}
+            data:
+              label: "{{doorbell_frigate_event_name}}"
+              duration: 2
+              include_recording: true
+            target:
+              entity_id: "{{doorbell_camera}}"
       - alias: "Custom Action Manual"
         conditions:
           - condition: trigger
@@ -1125,7 +1204,9 @@ actions:
               zones_satisfied: "{{zone_single_satisfied and zone_multi_satisfied and zone_order_satisfied}}"
               # Customisation of text
               title: !input title
-              message: !input message
+              detectionmessage: !input detection_message
+              doorbell_message: !input doorbell_message
+              message: "{{ doorbell_message if (frigate_doorbell_event_name in value_json.after.data.objects) else detection_message }}"
               subtitle: !input subtitle
               tap_action: !input tap_action
               button_1: !input button_1
@@ -1561,7 +1642,7 @@ actions:
                       {% endif %}
                     # import the title and message again so any sublabel, object or zone changes are captured.
                     title: !input title
-                    message: !input message
+                    message: !input detection_message
                     subtitle: !input subtitle
 
                     critical_input: !input critical
