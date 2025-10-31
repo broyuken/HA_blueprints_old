@@ -1204,7 +1204,7 @@ actions:
               zones_satisfied: "{{zone_single_satisfied and zone_multi_satisfied and zone_order_satisfied}}"
               # Customisation of text
               title: !input title
-              detectionmessage: !input detection_message
+              detection_message: !input detection_message
               doorbell_message: !input doorbell_message
               message: "{{ doorbell_message if (frigate_doorbell_event_name in value_json.after.data.objects) else detection_message }}"
               subtitle: !input subtitle
