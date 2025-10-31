@@ -1041,8 +1041,8 @@ variables:
   zone_multi: !input zone_multi
   zone_order_enforced: !input zone_order_enforced
   input_labels: !input labels
-  #labels: "{{ input_labels | list | lower }}"
-  labels: "{{ (input_labels + ([] if doorbell_frigate_event_name == '' else [doorbell_frigate_event_name] )) | list | lower }}"
+  labels: "{{ input_labels | list | lower }}"
+  #labels: "{{ (input_labels + ([] if doorbell_frigate_event_name == '' else [doorbell_frigate_event_name] )) | list | lower }}"
   presence_entity: !input presence_filter
   disable_times: !input disable_times
   cooldown: !input cooldown
